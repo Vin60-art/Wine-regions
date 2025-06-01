@@ -1,21 +1,31 @@
+import { QUESTIONS } from './questions.js';
+
+const qElement = document.getElementById('question');
+const feedback = document.getElementById('feedback');
+const yesBtn = document.getElementById('yesBtn');
+const noBtn  = document.getElementById('noBtn');
+
+let current;
+
 function pickQuestion(){
   current = QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];
-  document.getElementById('question').textContent=current.statement;
-  document.getElementById('feedback').textContent='';
-  document.getElementById('feedback').className='feedback';
+  qElement.textContent = current.statement;
+  feedback.textContent = '';
 }
-function handle(ans){
-  const fb=document.getElementById('feedback');
-  if(ans===current.answer){
-    fb.textContent='Верно! 🍷';
-    fb.className='feedback correct';
-  }else{
-    fb.textContent='Мимо! '+current.explanation;
-    fb.className='feedback incorrect';
+
+function handle(answer){
+  const isCorrect = (answer === current.answer);
+  if(isCorrect){
+    feedback.textContent = "Верно! 🍷";
+    feedback.className = 'feedback correct';
+  } else {
+    feedback.textContent = "Неверно! " + current.explanation;
+    feedback.className = 'feedback incorrect';
   }
-  setTimeout(pickQuestion,1500);
+  setTimeout(pickQuestion, 1500);
 }
-let current;
-document.getElementById('yesBtn').addEventListener('click',()=>handle(true));
-document.getElementById('noBtn').addEventListener('click',()=>handle(false));
+
+yesBtn.addEventListener('click', () => handle(true));
+noBtn.addEventListener('click', () => handle(false));
+
 pickQuestion();
