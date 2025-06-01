@@ -1,41 +1,44 @@
 import { QUESTIONS } from './questions.js';
 
-const qEl = document.getElementById('question');
-const fb  = document.getElementById('feedback');
-const yes = document.getElementById('yesBtn');
-const no  = document.getElementById('noBtn');
+const qEl  = document.getElementById('question');
+const fb   = document.getElementById('feedback');
+const yesB = document.getElementById('yesBtn');
+const noB  = document.getElementById('noBtn');
 
-let deck   = [];
-let cursor = 0;
-let current = null;          // ← объявили
+let deck = [];
+let idx  = 0;
+let current = null;
+let awaitingNext = false; // false -> ждём ответ; true -> ждём переход
 
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
-
-function fillDeck() {
+function shuffle(a){return a.sort(()=>Math.random()-0.5);}
+function refill(){
   deck = shuffle([...QUESTIONS]);
-  cursor = 0;
+  idx  = 0;
 }
-
-function pickQuestion() {
-  if (cursor >= deck.length) fillDeck();   // если кончилась колода
-  current = deck[cursor++];
+function showQuestion(){
+  if(idx>=deck.length) refill();
+  current = deck[idx++];
   qEl.textContent = current.statement;
-  fb.textContent  = '';                    // очищаем фидбек
+  fb.textContent  = '';
+  fb.className = 'feedback';
+  yesB.disabled = noB.disabled = false;
+  awaitingNext = false;
 }
-
-function handle(answer) {
-  const right = answer === current.answer;
-  fb.textContent = right
-    ? 'Верно! 🍷'
-    : 'Неверно! ' + current.explanation;
-  fb.className  = 'feedback ' + (right ? 'correct' : 'incorrect');
-  setTimeout(pickQuestion, 1500);
+function showResult(correct){
+  fb.textContent = correct ? 'Верно! 🍷' : 'Неверно! ' + current.explanation;
+  fb.className = 'feedback ' + (correct ? 'correct':'incorrect');
+  awaitingNext = true;
 }
+function handle(choice){
+  if(!awaitingNext){
+     const correct = (choice === current.answer);
+     showResult(correct);
+  }else{
+     showQuestion();
+  }
+}
+yesB.addEventListener('click',()=>handle(true));
+noB .addEventListener('click',()=>handle(false));
 
-yes.onclick = () => handle(true);
-no .onclick = () => handle(false);
-
-fillDeck();       // инициализируем колоду
-pickQuestion();   // показываем первый вопрос
+refill();
+showQuestion();
