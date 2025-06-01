@@ -1,31 +1,35 @@
 import { QUESTIONS } from './questions.js';
 
-const qElement = document.getElementById('question');
-const feedback = document.getElementById('feedback');
-const yesBtn = document.getElementById('yesBtn');
-const noBtn  = document.getElementById('noBtn');
+const qEl = document.getElementById('question');
+const fb  = document.getElementById('feedback');
+const yes = document.getElementById('yesBtn');
+const no  = document.getElementById('noBtn');
 
-let current;
+let deck   = shuffle([...QUESTIONS]); // копия и сразу перемешали
+let cursor = 0;
 
-function pickQuestion(){
-  current = QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];
-  qElement.textContent = current.statement;
-  feedback.textContent = '';
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
 
-function handle(answer){
-  const isCorrect = (answer === current.answer);
-  if(isCorrect){
-    feedback.textContent = "Верно! 🍷";
-    feedback.className = 'feedback correct';
-  } else {
-    feedback.textContent = "Неверно! " + current.explanation;
-    feedback.className = 'feedback incorrect';
+function pickQuestion() {
+  if (cursor >= deck.length) {          // колода кончилась
+    deck = shuffle([...QUESTIONS]);     // тасуем заново
+    cursor = 0;
   }
+  current = deck[cursor++];
+  qEl.textContent = current.statement;
+  fb.textContent  = '';
+}
+
+function handle(answer) {
+  const right = answer === current.answer;
+  fb.textContent = right ? 'Верно! 🍷' : 'Неверно! ' + current.explanation;
+  fb.className   = 'feedback ' + (right ? 'correct' : 'incorrect');
   setTimeout(pickQuestion, 1500);
 }
 
-yesBtn.addEventListener('click', () => handle(true));
-noBtn.addEventListener('click', () => handle(false));
+yes.onclick = () => handle(true);
+no .onclick = () => handle(false);
 
 pickQuestion();
